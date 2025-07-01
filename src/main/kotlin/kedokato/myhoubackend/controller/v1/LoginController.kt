@@ -1,26 +1,27 @@
-package kedokato.myhoubackend.controller
+package kedokato.myhoubackend.controller.v1
 
-import kedokato.myhoubackend.domain.respone.HealthResponse
+import kedokato.myhoubackend.domain.request.LoginRequest
 import kedokato.myhoubackend.domain.respone.LoginResponse
 import kedokato.myhoubackend.service.CasLoginService
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api")
-class CrawlerController(
+@RequestMapping("v1/api")
+class LoginController(
     private val casLoginService: CasLoginService
 ) {
 
-    @PostMapping("/login")
-    suspend fun login(@RequestParam username: String, @RequestParam password: String): ResponseEntity<LoginResponse> {
-        val loginResult = casLoginService.login(username, password)
+    private val logger = LoggerFactory.getLogger(LoginController::class.java)
+
+
+    @PostMapping("/login", consumes = ["application/json"])
+    suspend fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<LoginResponse> {
+        val loginResult = casLoginService.login(loginRequest.username, loginRequest.password)
         return if (loginResult.success) {
+            logger.info("User logged in successfully ${loginRequest.username}")
             ResponseEntity.ok(
                 LoginResponse(
                     success = true,
@@ -40,12 +41,5 @@ class CrawlerController(
             )
         }
     }
-
-    @GetMapping("/healthy")
-    fun healthCheck(): ResponseEntity<HealthResponse> {
-        return ResponseEntity.ok(HealthResponse(status = "healthy", message = "Service is running"))
-    }
-
-
 
 }

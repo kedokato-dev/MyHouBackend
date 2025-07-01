@@ -1,5 +1,6 @@
 package kedokato.myhoubackend.service
 
+import kedokato.myhoubackend.config.UrlSinhVienHOU
 import kedokato.myhoubackend.domain.respone.LoginResponse
 import kedokato.myhoubackend.http.HttpClientFactory
 import kedokato.myhoubackend.http.HttpSessionClient
@@ -14,7 +15,7 @@ import java.net.URLEncoder
 class CasLoginService(
     private val httpClientFactory: HttpClientFactory
 ) {
-    private val casLoginUrl = "https://cas.hou.edu.vn/cas/login?service=https://sinhvien.hou.edu.vn/login.aspx"
+    private val casLoginUrl = UrlSinhVienHOU.CAS_LOGIN_URL
     private val logger = LoggerFactory.getLogger(CasLoginService::class.java)
 
     suspend fun login(username: String, password: String): LoginResponse = withContext(Dispatchers.IO) {
@@ -25,7 +26,6 @@ class CasLoginService(
         try {
             val loginPageResponse = httpClient.get(casLoginUrl)
             val doc = Jsoup.parse(loginPageResponse.body)
-            logger.info("HTML nhận được từ trang login")
 
             val execution = doc.select("input[name=execution]").first()?.attr("value")
                 ?: throw IllegalStateException("Không lấy được execution token")
@@ -43,15 +43,12 @@ class CasLoginService(
             val ticketUrl = loginResponse.headers["Location"]?.firstOrNull()
                 ?: throw IllegalStateException("Đăng nhập thất bại - không có redirect")
 
-            logger.info("Ticket URL nhận được: {}", ticketUrl)
 
             val finalResponse = httpClient.get(ticketUrl)
-            logger.info("Đăng nhập thành công, đã truy cập ticket URL")
 
             val authCookie = httpClient.getCookies()[".ASPXAUTH"]
             val sessionId = httpClient.getCookies()["ASP.NET_SessionId"]
-            logger.info("Auth cookie: {}", authCookie)
-            logger.info("Session ID: {}", sessionId)
+
 
             LoginResponse(
                 success = true,

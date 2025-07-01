@@ -5,6 +5,7 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.CloseableHttpClient
+import org.apache.http.impl.cookie.BasicClientCookie
 import org.apache.http.util.EntityUtils
 
 class HttpSessionClient(
@@ -37,6 +38,11 @@ class HttpSessionClient(
         return cookieStore.cookies.associate { it.name to it.value }
     }
 
+    fun setCookie(name: String, value: String) {
+        val cookie = BasicClientCookie(name, value)
+        cookieStore.addCookie(cookie)
+    }
+
     private fun applyHeaders(request: org.apache.http.client.methods.HttpRequestBase) {
         request.setHeader("User-Agent", "Mozilla/5.0")
         request.setHeader("Accept", "text/html,application/xhtml+xml")
@@ -45,6 +51,14 @@ class HttpSessionClient(
 
     fun close() {
         httpClient.close()
+    }
+
+    fun setCookieWithDomain(name: String, value: String, domain: String, path: String) {
+        val cookie = BasicClientCookie(name, value)
+        cookie.domain = domain
+        cookie.path = path
+        cookie.isSecure = true
+        cookieStore.addCookie(cookie)
     }
 
     data class HttpResponse(
