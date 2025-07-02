@@ -2,7 +2,8 @@ package kedokato.myhoubackend.config
 
 object UrlSinhVienHOU {
     const val CAS_LOGIN_URL = "https://cas.hou.edu.vn/cas/login?service=https://sinhvien.hou.edu.vn/login.aspx"
-    const val HOU_BASE_URL = "sinhvien.hou.edu.vn"
+    const val DOMAIN = "sinhvien.hou.edu.vn"
+    const val HOU_BASE_URL = "https://sinhvien.hou.edu.vn/"
     const val HO_SO_SINH_VIEN = "https://sinhvien.hou.edu.vn/wfrmHoSoSinhVien.aspx"
     const val CHUONG_TRINH_DAO_TAO = "https://sinhvien.hou.edu.vn/ChuongTrinhDaoTaoSinhVien.aspx"
     const val KET_QUA_HOC_TAP = "https://sinhvien.hou.edu.vn/KetQuaHocTap.aspx"

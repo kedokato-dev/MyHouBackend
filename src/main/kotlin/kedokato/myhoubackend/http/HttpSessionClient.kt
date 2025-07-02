@@ -38,10 +38,6 @@ class HttpSessionClient(
         return cookieStore.cookies.associate { it.name to it.value }
     }
 
-    fun setCookie(name: String, value: String) {
-        val cookie = BasicClientCookie(name, value)
-        cookieStore.addCookie(cookie)
-    }
 
     private fun applyHeaders(request: org.apache.http.client.methods.HttpRequestBase) {
         request.setHeader("User-Agent", "Mozilla/5.0")
