@@ -1,8 +1,11 @@
 package kedokato.myhoubackend.controller.v1
 
+import kedokato.myhoubackend.domain.respone.ApiResponse
+import kedokato.myhoubackend.helper.ResponseHelper
 import kedokato.myhoubackend.model.Student
 import kedokato.myhoubackend.service.StudentInfoService
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestHeader
@@ -20,13 +23,14 @@ class StudentController(
     suspend fun getStudentInfo(
         @RequestHeader("Auth-Cookie") authCookie: String,
         @RequestHeader("Session-Id") sessionId: String
-    ): ResponseEntity<Student?> {
+    ): ResponseEntity<ApiResponse<Student>> {
         return try {
-            val studentInfo = studentInfoService.getStudentInfo(authCookie, sessionId)
-            ResponseEntity.ok(studentInfo)
+            studentInfoService.getStudentInfo(authCookie, sessionId)?.let { studentInfo ->
+                ResponseHelper.success(data = studentInfo)
+            } ?: ResponseHelper.error(HttpStatus.BAD_REQUEST, "Không thể lấy thông tin sinh viên")
         } catch (e: Exception) {
             logger.error("Lỗi khi lấy thông tin sinh viên: {}", e.message)
-            ResponseEntity.internalServerError().body(null)
+            ResponseHelper.error(HttpStatus.BAD_REQUEST, "Không thể lấy thông tin sinh viên")
         }
     }
 }

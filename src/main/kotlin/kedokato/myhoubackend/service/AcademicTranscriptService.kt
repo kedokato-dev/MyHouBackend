@@ -20,7 +20,7 @@ class AcademicTranscriptService(
 ) {
     private val logger = LoggerFactory.getLogger(AcademicTranscriptService::class.java)
 
-    suspend fun getAcademicTranscript(authCookie: String, sessionId: String): List<DetailedTranscriptResponse> =
+    suspend fun getAcademicTranscript(authCookie: String, sessionId: String): List<DetailedTranscriptResponse> ? =
         withContext(Dispatchers.IO) {
             val clientWithCookieStore = httpClientFactory.createClient()
             val httpClient = HttpSessionClient(clientWithCookieStore.client, clientWithCookieStore.cookieStore)
@@ -34,24 +34,22 @@ class AcademicTranscriptService(
                 return@withContext redirectValidationService.handleRedirectAndParse(
                     response = response,
                     httpClient = httpClient,
-                    defaultValue = emptyList()
+                    defaultValue = null
                 ) { body ->
                     val doc = Jsoup.parse(body)
                     logger.info("Document title: {}", doc.title())
                     academicTranscriptParse.parseTranscriptTable(doc, UrlSinhVienHOU.HOU_BASE_URL, httpClient)
                 }
 
-
             } catch (e: Exception) {
                 logger.error("Error getting academic transcript: {}", e.message, e)
-                return@withContext emptyList()
-            }
-            finally {
+                return@withContext null
+            } finally {
                 httpClient.close()
             }
         }
 
-    suspend fun getGeneralTranscript(authCookie: String, sessionId: String): GeneralTranscriptResponse =
+    suspend fun getGeneralTranscript(authCookie: String, sessionId: String): GeneralTranscriptResponse? =
         withContext(Dispatchers.IO) {
             val clientWithCookieStore = httpClientFactory.createClient()
             val httpClient = HttpSessionClient(clientWithCookieStore.client, clientWithCookieStore.cookieStore)
@@ -67,16 +65,17 @@ class AcademicTranscriptService(
                 return@withContext redirectValidationService.handleRedirectAndParse(
                     response = response,
                     httpClient = httpClient,
-                    defaultValue = GeneralTranscriptResponse()
+                    defaultValue = null
                 ) { body ->
                     val doc = Jsoup.parse(body)
                     logger.info("Document title: {}", doc.title())
-                    academicTranscriptParse.parseGeneralTranscript(doc)
+                     academicTranscriptParse.parseGeneralTranscript(doc)
+
                 }
 
             } catch (e: Exception) {
                 logger.error("Error getting general transcript: {}", e.message, e)
-                return@withContext GeneralTranscriptResponse()
+                return@withContext null
             } finally {
                 httpClient.close()
             }

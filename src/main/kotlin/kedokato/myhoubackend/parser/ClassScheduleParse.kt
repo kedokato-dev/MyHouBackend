@@ -1,23 +1,23 @@
 package kedokato.myhoubackend.parser
 
-import kedokato.myhoubackend.domain.respone.LessonByDayAndSession
-import kedokato.myhoubackend.domain.respone.LessonDetailResponse
+import kedokato.myhoubackend.domain.respone.LessonDetail
+import kedokato.myhoubackend.domain.respone.LessonResponse
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
-class ClassScheduleParse{
+class ClassScheduleParse {
 
-    private val  logger = LoggerFactory.getLogger(ClassScheduleParse::class.java)
+    private val logger = LoggerFactory.getLogger(ClassScheduleParse::class.java)
 
-    suspend fun getClassSchedule(doc: Document): List<LessonByDayAndSession> {
+    suspend fun getClassSchedule(doc: Document): List<LessonResponse> {
         val rows = doc.select("tbody > tr")
         if (rows.size < 2) return emptyList()
 
         val days = rows[0].select("th").drop(1).map { it.text().trim() }.take(7) // Chỉ lấy Thứ 2 đến Thứ 7
-        val sessionsByDay = mutableMapOf<Pair<String, String>, MutableList<LessonDetailResponse>>()
+        val sessionsByDay = mutableMapOf<Pair<String, String>, MutableList<LessonDetail>>()
 
         for (i in 1 until rows.size) {
             val row = rows[i]
@@ -39,12 +39,13 @@ class ClassScheduleParse{
                     val classCode = lines.find { it.startsWith("Mã lớp:") }?.removePrefix("Mã lớp:")?.trim() ?: ""
                     val teacher = lines.find { it.startsWith("GV:") }?.removePrefix("GV:")?.trim() ?: ""
                     val room = lines.find { it.startsWith("Phòng:") }?.removePrefix("Phòng:")?.trim() ?: ""
-                    val method = lines.find { it.startsWith("Hình thức học:") }?.removePrefix("Hình thức học:")?.trim() ?: ""
+                    val method =
+                        lines.find { it.startsWith("Hình thức học:") }?.removePrefix("Hình thức học:")?.trim() ?: ""
 
                     val key = Pair(day, session)
-                    sessionsByDay.computeIfAbsent(key) { mutableListOf() }
+                    sessionsByDay.computeIfAbsent(key) { mutableListOf<LessonDetail>() }
                         .add(
-                            LessonDetailResponse(
+                            LessonDetail(
                                 subject = subject,
                                 period = period,
                                 classCode = classCode,
@@ -59,20 +60,22 @@ class ClassScheduleParse{
         }
 
         val allSessions = listOf("Sáng", "Chiều", "Tối")
-        val result = mutableListOf<LessonByDayAndSession>()
+        val result = mutableListOf<LessonResponse>()
 
         for (day in days) {
             for (session in allSessions) {
                 val key = Pair(day, session)
-                val list = sessionsByDay[key] ?: emptyList()
-                result.add(LessonByDayAndSession(day = day, session = session, lessons = list))
+                val list = sessionsByDay[key] ?: emptyList<LessonDetail>()
+                result.add(
+                    LessonResponse(
+                        day = day,
+                        session = session,
+                        lessons = list
+                    )
+                )
             }
         }
 
         return result
     }
-
-
-
-
 }

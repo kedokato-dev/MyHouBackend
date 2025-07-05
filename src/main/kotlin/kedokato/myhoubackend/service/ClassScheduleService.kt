@@ -1,7 +1,7 @@
 package kedokato.myhoubackend.service
 
 import kedokato.myhoubackend.config.UrlSinhVienHOU
-import kedokato.myhoubackend.domain.respone.LessonByDayAndSession
+import kedokato.myhoubackend.domain.respone.LessonResponse
 import kedokato.myhoubackend.http.HttpClientFactory
 import kedokato.myhoubackend.http.HttpSessionClient
 import kedokato.myhoubackend.parser.ClassScheduleParse
@@ -12,7 +12,6 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.springframework.stereotype.Service
 import java.net.URLEncoder
-
 
 @Service
 class ClassScheduleService(
@@ -26,7 +25,7 @@ class ClassScheduleService(
         authCookie: String,
         sessionId: String,
         weekDates: WeekDates
-    ): List<LessonByDayAndSession> = withContext(Dispatchers.IO) {
+    ): List<LessonResponse>? = withContext(Dispatchers.IO) {
         val clientWithCookieStore = httpClientFactory.createClient()
         val httpClient = HttpSessionClient(clientWithCookieStore.client, clientWithCookieStore.cookieStore)
 
@@ -39,7 +38,7 @@ class ClassScheduleService(
             return@withContext redirectValidationService.handleRedirectAndParse(
                 response = initialResponse,
                 httpClient = httpClient,
-                defaultValue = emptyList()
+                defaultValue = null
             ) { body ->
                 val doc = Jsoup.parse(body)
 
@@ -62,12 +61,12 @@ class ClassScheduleService(
                 val postResponse = httpClient.post(UrlSinhVienHOU.LICH_HOC_TUAN, payload)
                 val postDoc = Jsoup.parse(postResponse.body)
 
-                classScheduleParse.getClassSchedule(postDoc)
+              classScheduleParse.getClassSchedule(postDoc)
             }
 
         } catch (e: Exception) {
             logger.error("Error getting class schedule: {}", e.message, e)
-            return@withContext emptyList()
+            return@withContext null
         } finally {
             httpClient.close()
         }
@@ -77,17 +76,21 @@ class ClassScheduleService(
         authCookie: String,
         sessionId: String,
         monthData: MonthData
-    ): List<LessonByDayAndSession> = withContext(Dispatchers.IO) {
-        val allSchedules = mutableListOf<LessonByDayAndSession>()
+    ): List<LessonResponse>? = withContext(Dispatchers.IO) {
+        val allSchedules = mutableListOf<LessonResponse>()
 
-        monthData.weeks.forEach { weekDates ->
-            val weekSchedule = getClassScheduleByWeek(authCookie, sessionId, weekDates)
-            allSchedules.addAll(weekSchedule)
+        try {
+            monthData.weeks.forEach { weekDates ->
+                val weekSchedule = getClassScheduleByWeek(authCookie, sessionId, weekDates)
+                if (weekSchedule != null) {
+                    allSchedules.addAll(weekSchedule)
+                }
+            }
+
+            return@withContext allSchedules
+        } catch (e: Exception) {
+            logger.error("Error getting monthly class schedule: {}", e.message, e)
+            return@withContext null
         }
-
-        return@withContext allSchedules
     }
-    
-    
 }
-

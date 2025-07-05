@@ -1,15 +1,15 @@
 package kedokato.myhoubackend.domain.respone
 
 data class DetailedTranscriptResponse (
-    val semester: String,
-    val courseYear: String,
-    val subjectId: String,
-    val subjectName: String,
-    val credits: Int,
-    val grade10: Double,
-    val grade4: Double,
-    val letterGrade: String,
-    val isIncludedInGPA: Boolean,
+    val semester: String? = "",
+    val courseYear: String?= "",
+    val subjectId: String? = "",
+    val subjectName: String? = "",
+    val credits: Int? = -1,
+    val grade10: Double? = -1.0,
+    val grade4: Double? = -1.0,
+    val letterGrade: String? = "",
+    val isIncludedInGPA: Boolean? = false,
     val note: String? = "",
     val detailScoreUrl: String? = "",
     val subjectGradeDetails: List<SubjectGradeDetails> = emptyList()

@@ -2,14 +2,18 @@ package kedokato.myhoubackend.domain.respone
 
 
 
-data class LessonByDayAndSession(
-    val day: String,           // VD: "Thứ 2, 21/04/2025"
-    val session: String,       // VD: "Sáng", "Chiều", "Tối"
-    val lessons: List<LessonDetailResponse>
+data class LessonResponse(
+    val day: String,
+    val session: String,
+    val lessons: List<LessonDetail>
 )
 
+//data class LessonResponse(
+//    val lessonsByDayAndSession: List<LessonByDayAndSession>
+//)
 
-data class LessonDetailResponse(
+
+data class LessonDetail(
     val subject: String,
     val period: String,
     val classCode: String,

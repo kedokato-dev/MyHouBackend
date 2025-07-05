@@ -9,5 +9,4 @@ data class GeneralTranscriptResponse (
     val retakeSubjectsCount: Int? = null,
     val reExamSubjectCount : Int? = null,
     val pendingGradesCount: Int? = null,
-
 )
