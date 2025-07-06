@@ -47,6 +47,11 @@ kotlin {
     }
 }
 
+tasks.withType<Jar> {
+    archiveFileName.set("app.jar")
+}
+
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
