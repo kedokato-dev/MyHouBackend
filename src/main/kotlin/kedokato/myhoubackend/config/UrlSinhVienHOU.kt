@@ -11,4 +11,6 @@ object UrlSinhVienHOU {
     const val LICH_HOC_TUAN = "https://sinhvien.hou.edu.vn/wfrmLichHocSinhVienTinChi.aspx"
     const val LICH_THI = "https://sinhvien.hou.edu.vn/ThongTinLichThi.aspx"
     const val DIEM_REN_LUYEN = "https://sinhvien.hou.edu.vn/KetQuaRenLuyen.aspx"
+
+    const val URL_PROD = "https://myhoubackend.onrender.com/"
 }
