@@ -14,8 +14,8 @@ class CorsConfig {
                 registry.addMapping("/**")
                     .allowedOrigins(
                         "http://localhost:5174",      // Development
-                        "https://myhou.vercel.app",   // Production (bỏ dấu / cuối)
-                        "https://myhou-*.vercel.app"  // Preview deployments
+                        "https://myhou.vercel.app",   // Production vercel
+                        "https://myhou.io.vn"  // trỏ domain
                     )
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                     .allowedHeaders("*")
